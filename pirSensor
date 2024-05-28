@@ -1,0 +1,51 @@
+const int led = 13; // LEDens positive terminal tilkoblet digital pinne 13.
+const int sensor = 12; // Signalet fra sensoren tilkoblet digital pinne 12.
+
+int tilstand = LOW; // Initialiserer LED-ens tilstand til lav (av)
+int verdi = 0; // Variabel for å lagre sensorens verdi
+unsigned long sisteTid = 0; // Variabel for å lagre tidspunktet for siste bevegelsesdeteksjon
+unsigned long ingenBevegelseTid = 5000; // Tidsintervall for å definere ingen bevegelse (5 minutter i millisekunder)
+unsigned long blinkStartTid = 0; // Variabel for å lagre starttidspunktet for blinking
+unsigned long blinkIntervall = 300; // Tidsintervall for blinking (300 millisekunder)
+bool blinking = false; // Variabel som indikerer om LED-en blinker eller ikke
+
+void setup() {
+  pinMode(led, OUTPUT); // LED-en er satt som en utgang her
+  pinMode(sensor, INPUT); // PIR bevegelsessensoren er satt som en inngang her
+  Serial.begin(9600); // Start seriell kommunikasjon med en baudrate på 9600 bps
+}
+
+void loop() {
+  verdi = digitalRead(sensor); // Leser sensorens verdi
+  
+  if (verdi == HIGH) { // Hvis sensoren registrerer bevegelse
+    sisteTid = millis(); // Oppdaterer siste tidspunkt bevegelse ble oppdaget
+    digitalWrite(led, HIGH); // Slår på LED-en
+    Serial.println("Motion detected"); // Skriver ut melding om bevegelse
+    delay(500); // Ventetid for debouncing
+    tilstand = HIGH; // Oppdaterer LED-ens tilstand til høy (på)
+  } else { // Hvis det ikke er bevegelse
+    if (millis() - sisteTid >= ingenBevegelseTid) { // Sjekker om det har gått 5 minutter uten bevegelse
+      if (!blinking) { // Starter blinking hvis det ikke allerede blinker
+        blinkStartTid = millis(); // Oppdaterer starttidspunkt for blinking
+        blinking = true; // Markerer at blinking er i gang
+        Serial.println("No motion detected for 5 minutes. Starting to blink."); // Skriver ut melding om start av blinking
+      }
+    }
+
+    if (blinking) { // Hvis det blinker
+      if (millis() - blinkStartTid < 60000) { // Sjekker om det har gått mindre enn 1 minutt siden starten av blinkingen
+        if ((millis() / blinkIntervall) % 2 == 0) { // Blinker LED-en hvert sekund
+          digitalWrite(led, HIGH); // Slår på LED-en
+        } else {
+          digitalWrite(led, LOW); // Slår av LED-en
+        }
+      } else { // Hvis det har gått 1 minutt siden starten av blinkingen
+        digitalWrite(led, LOW); // Slår av LED-en
+        Serial.println("Blinking finished. Program ending."); // Skriver ut melding om at blinkingen er ferdig og programmet avsluttes
+        blinking = false; // Markerer at blinkingen er ferdig
+        while (true); // Stopper programmet
+      }
+    }
+  }
+}

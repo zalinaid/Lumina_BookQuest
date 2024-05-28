@@ -1,0 +1,63 @@
+#include <toneAC.h>  // Inkluderer toneAC-biblioteket for tonegenerering
+
+// Definerer tonehøyder for notene fra C0 til D8 og hviletone
+#define NOTE_B0  31
+#define NOTE_C1  33
+#define NOTE_CS1 35
+// ... (fortsetter til NOTE_DS8, samt hviletone REST)
+
+// Definerer piezo-pinne og melodier
+int piezoPin = 8; // Definerer piezo-pinne som utgang
+
+// Oppstartsmelodi
+int startupMelody[] = {
+  // Note, duration, ...
+};
+
+int startupTempo = 200; // Tempo for oppstartsmelodien
+
+// Zelda's Lullaby-melodi
+int zeldaMelody[] = {
+  // Note, duration, ...
+};
+
+int startupNotes = sizeof(startupMelody) / sizeof(startupMelody[0]) / 2; // Antall noter i oppstartsmelodien
+int zeldaNotes = sizeof(zeldaMelody) / sizeof(zeldaMelody[0]) / 2; // Antall noter i Zelda's Lullaby-melodien
+
+void setup() {
+  Serial.begin(9600);  // Initialiserer seriell kommunikasjon
+  pinMode(piezoPin, OUTPUT);  // Setter piezo-pinne som utgang
+
+  Serial.println("Piezo Buzzer Test Initialized."); // Skriver ut melding om initialisering av test
+}
+
+void loop() {
+  playStartupMelody(); // Spiller av oppstartsmelodien
+  delay(1000);  // Venter i 1 sekund
+  playZeldaLullaby(); // Spiller av Zelda's Lullaby-melodien
+  delay(1000);  // Venter i 1 sekund
+}
+
+// Funksjon for å spille av oppstartsmelodien
+void playStartupMelody() {
+  Serial.println("Playing Startup Melody."); // Skriver ut melding om at oppstartsmelodien spilles
+  for (int thisNote = 0; thisNote < startupNotes * 2; thisNote += 2) {
+    int noteDuration = 1000 / startupMelody[thisNote + 1]; // Beregner notens varighet
+    tone(piezoPin, startupMelody[thisNote], noteDuration); // Spiller av noten
+    int pauseBetweenNotes = noteDuration * 1.30; // Beregner pause mellom noter
+    delay(pauseBetweenNotes); // Venter i pausen mellom noter
+    noTone(piezoPin); // Stopper tonen
+  }
+}
+
+// Funksjon for å spille av Zelda's Lullaby-melodien
+void playZeldaLullaby() {
+  Serial.println("Playing Zelda's Lullaby."); // Skriver ut melding om at Zelda's Lullaby spilles
+  for (int thisNote = 0; thisNote < zeldaNotes * 2; thisNote += 2) {
+    int noteDuration = 1000 / zeldaMelody[thisNote + 1]; // Beregner notens varighet
+    tone(piezoPin, zeldaMelody[thisNote], noteDuration); // Spiller av noten
+    int pauseBetweenNotes = noteDuration * 1.30; // Beregner pause mellom noter
+    delay(pauseBetweenNotes); // Venter i pausen mellom noter
+    noTone(piezoPin); // Stopper tonen
+  }
+}

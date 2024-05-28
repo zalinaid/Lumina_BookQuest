@@ -1,0 +1,30 @@
+// En array av pin nummere: nummerene viser hvilke LEDs som de er tilkoblet til
+const int segmentPins[10] = {2, 3, 12, 8, 6, 7, 8, 9, 10, 11}; // Pin-numre for LEDs
+const int numLeds = 10; // Antall LED-er
+const unsigned long interval = 100; // Intervallet for å slå på neste LED (i millisekunder)
+
+unsigned long previousMillis = 0; // Tidspunkt for siste LED-oppdatering
+int currentLed = 0; // Indeks for nåværende LED
+
+void setup() {
+  Serial.begin(9600); // Start seriell kommunikasjon ved 9600 bps
+  for (int i = 0; i < numLeds; i++) {
+    pinMode(segmentPins[i], OUTPUT); // Sett LED-pinnene som utganger
+    digitalWrite(segmentPins[i], LOW); // Slå av alle LED-ene i starten
+  }
+  Serial.println("Setup complete"); // Skriv ut melding når oppsettet er ferdig
+}
+
+void loop() {
+  unsigned long currentMillis = millis(); // Nåværende tid i millisekunder
+  
+  // Sjekk om det er på tide å slå på neste LED
+  if (currentLed < numLeds && currentMillis - previousMillis >= interval) {
+    previousMillis = currentMillis; // Oppdater tidspunkt for siste LED-oppdatering
+    digitalWrite(segmentPins[currentLed], HIGH); // Slå på neste LED
+    Serial.print("LED "); // Skriv ut LED-status
+    Serial.print(currentLed);
+    Serial.println(" is ON");
+    currentLed++; // Øk indeks for å peke på neste LED
+  }
+}

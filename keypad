@@ -1,9 +1,10 @@
 #include <Keypad.h>
 
 // Keypad configuration
-const byte ROWS = 4;
-const byte COLS = 4;
+const byte ROWS = 4; // Antall rader på tastaturet
+const byte COLS = 4; // Antall kolonner på tastaturet
 
+// Definerer tastene på tastaturet
 char keys[ROWS][COLS] = {
   {'1','2','3','A'},
   {'4','5','6','B'},
@@ -11,64 +12,65 @@ char keys[ROWS][COLS] = {
   {'*','0','#','D'}
 };
 
-byte rowPins[ROWS] = {2, 3, 4, 5};
-byte colPins[COLS] = {6, 7, 8, 9};
+// Pinner tilkoblet tastaturet rader og kolonner
+byte rowPins[ROWS] = {2, 3, 4, 5}; // Pinner for rader
+byte colPins[COLS] = {6, 7, 8, 9}; // Pinner for kolonner
 
+// Oppretter et Keypad objekt
 Keypad keypad = Keypad(makeKeymap(keys), rowPins, colPins, ROWS, COLS);
 
-String inputString = ""; // String to store input
+String inputString = ""; // Streng for å lagre inntasting
 unsigned long startTid = 0; // Starttid for tidtaking
 unsigned long tid = 0; // Varighet i millisekunder
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // Initialiserer seriell kommunikasjon på 9600 bps
 }
 
 void loop() {
-  // Handle keypad input
+  // Håndterer inntasting fra tastaturet
   char key = keypad.getKey();
   if (key) {
     if (key == '#') {
-      // Konverterer inndata til minutter og start tidstaking
+      // Konverterer inndata til minutter og starter tidtaking
       if(inputString.length() > 0){
-        int minutter = inputString.toInt(); // konverterer inndata til int
-        tid = minutter * 60000; // konverterer minutter til millisekunder
-        startTid = millis();  // starter tidstaking
+        int minutter = inputString.toInt(); // Konverterer inndata til int
+        tid = minutter * 60000; // Konverterer minutter til millisekunder
+        startTid = millis();  // Starter tidtaking
         Serial.print("Timer satt til: ");
         Serial.print(minutter);
         Serial.println(" minutter");
-        inputString = ""; // Nullstill inndata
+        inputString = ""; // Nullstiller inndata
       }
     } else {
-      inputString += key;
-     
-    }Serial.println("Aktuell inntasting: " + inputString);
-    
+      inputString += key; // Legger til trykket tast til inputString
+      Serial.println("Aktuell inntasting: " + inputString); // Skriver ut aktuell inntasting
+    }
   }
 
-
-  // Sjekk og vis forløpt tid hvis tidtaking pågår
+  // Sjekker og viser forløpt tid hvis tidtaking pågår
   if (startTid != 0 && millis() - startTid <= tid) {
-    unsigned long elapsedTime = millis() - startTid;
-    displayElapsedTime(elapsedTime);
+    unsigned long elapsedTime = millis() - startTid; // Beregner forløpt tid
+    displayElapsedTime(elapsedTime); // Viser forløpt tid
   } else if (startTid != 0 && millis() - startTid > tid) {
-    Serial.println("Timer ferdig");
-    startTid = 0; // Nullstill starttid etter at timeren er ferdig
+    Serial.println("Timer ferdig"); // Skriver ut at timeren er ferdig
+    startTid = 0; // Nullstiller starttid etter at timeren er ferdig
   }
 
-  delay(100); // Vent litt før neste sjekk
+  delay(100); // Venter litt før neste sjekk
 }
 
 void displayElapsedTime(unsigned long elapsedTime) {
-  unsigned long sekunder = (tid - elapsedTime) / 1000;
-  unsigned long minutter = sekunder / 60;
-  sekunder %= 60;
+  unsigned long sekunder = (tid - elapsedTime) / 1000; // Beregner gjenstående sekunder
+  unsigned long minutter = sekunder / 60; // Beregner gjenstående minutter
+  sekunder %= 60; // Beregner resterende sekunder etter minutter er trukket fra
   Serial.print("Gjenstående tid: ");
   Serial.print(minutter);
   Serial.print(" minutter ");
   if (sekunder < 10) {
-    Serial.print("0");
+    Serial.print("0"); // Legger til ledende null hvis sekunder er mindre enn 10
   }
   Serial.print(sekunder);
-  Serial.println(" sekunder");
+  Serial.println(" sekunder"); // Skriver ut gjenstående tid i formatet "mm:ss"
 }
+

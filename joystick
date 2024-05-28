@@ -1,0 +1,29 @@
+// DEKLARASJON AV VARIABLER OG PINNER
+int joystickYPin = A0;    // Analog pin for joystick y-akse
+int ledPin1 = 10;         // Pin for første LED
+int ledPin2 = 6;          // Pin for andre LED
+int joystickYVerdi;       // Variabel for å lagre joystick y-akse verdi
+int lysstyrke;            // Variabel for å lagre beregnet lysstyrke
+
+// SETUP FUNKSJONEN
+void setup() {
+  Serial.begin(9600);        // Initialiser seriell kommunikasjon ved 9600 bps
+  pinMode(ledPin1, OUTPUT);  // Sett ledPin1 som output
+  pinMode(ledPin2, OUTPUT);  // Sett ledPin2 som output
+  pinMode(joystickYPin, INPUT); // Sett joystickYPin som input
+  Serial.println("Setup complete"); // Skriv ut setup melding
+}
+
+// LOOP FUNKSJON
+void loop() {
+  joystickYVerdi = analogRead(joystickYPin);  // Les verdi fra joystick y-akse
+  lysstyrke = map(joystickYVerdi, 0, 1023, 0, 255); // Kartlegg verdi til lysstyrke
+
+  Serial.print("Joystick Value: "); // Skriv ut joystick verdi
+  Serial.print(joystickYVerdi);
+  Serial.print(" - Lysstyrke: "); // Skriv ut lysstyrke
+  Serial.println(lysstyrke);
+
+  analogWrite(ledPin1, lysstyrke); // Juster lysstyrken til ledPin1
+  analogWrite(ledPin2, lysstyrke); // Juster lysstyrken til ledPin2
+}
